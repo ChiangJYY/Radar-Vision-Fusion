@@ -1,0 +1,22 @@
+RT-DETR and RT-DETRv2
+Upstream: https://github.com/lyuwenyu/RT-DETR
+Copyright notices in the individual source files are retained.
+License: Apache License 2.0; see LICENSE in this directory.
+
+This directory contains selected Python source and model architecture
+configurations from the local upstream-derived project. It is not a complete
+upstream checkout. We omit Git history, weights, datasets, result folders,
+training command-line entry points and training recipe configurations.
+Architecture configurations set pretrained=False to avoid implicit downloads.
+The original general-purpose support modules are retained for import compatibility.
+No private radar-vision training protocol is included.
+Inference package initialization registers model components only; optional data
+and optimizer modules require explicit imports. RT-DETRv2's TensorBoard import
+is deferred until a summary writer is requested, so inference does not require it.
+The custom dataset DataLoader import is likewise deferred until distributed
+loader wrapping is requested.
+
+Published inference/export entry points require explicit output destinations
+and external model-weight paths; no repository-local weight directory is assumed.
+Unused training imports were removed from the legacy image-inference script.
+Optional Transformers/RegNet and TensorRT imports are deferred until requested.

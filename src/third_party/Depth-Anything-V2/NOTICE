@@ -1,0 +1,16 @@
+Depth Anything V2
+Upstream: https://github.com/DepthAnything/Depth-Anything-V2
+Copyright notices in the individual source files are retained.
+Code license: see LICENSE in this directory.
+
+This source subset includes relative-depth and metric-depth network code and
+their image/video inference scripts. Git history, example media, datasets,
+weights, training entry points and training recipes are omitted.
+The project adapter explicitly imports metric_depth/depth_anything_v2 for
+metre-valued depth. Model-weight terms are separate and must be checked with
+the upstream model distribution; no model weights are supplied here.
+The two image2tensor helpers follow the model's current device rather than
+selecting CUDA independently, so an explicit CPU selection is respected.
+
+Published inference/export entry points require explicit output destinations
+and external model-weight paths; no repository-local weight directory is assumed.
