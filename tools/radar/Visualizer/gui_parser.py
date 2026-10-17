@@ -2,7 +2,6 @@
 
 # Standard Imports
 import struct
-from pathlib import Path
 import serial
 import time
 import numpy as np
@@ -24,11 +23,7 @@ from parseFrame import *
 # Then call readAndParseUart() to read one frame of data from the device. The gui this is packaged with calls this every frame period.
 # readAndParseUart() will return all radar detection and tracking information.
 class uartParser():
-    def __init__(self,type='SDK Out of Box Demo', output_dir=None):
-        if output_dir is None:
-            raise ValueError("Provide the radar capture output directory")
-        self.output_dir = Path(output_dir).expanduser().resolve()
-        self.output_dir.mkdir(parents=True, exist_ok=True)
+    def __init__(self,type='SDK Out of Box Demo'):
         self.replay = 0
 
         if (type == DEMO_NAME_OOB):
@@ -54,7 +49,7 @@ class uartParser():
     
 
     def WriteFile(self, data):
-        filepath = self.output_dir / (self.now_time + '.bin')
+        filepath=self.now_time + '.bin'
         objStruct = '6144B'
         objSize = struct.calcsize(objStruct)
         binfile = open(filepath, 'ab+') #open binary file for append

@@ -7,36 +7,33 @@ import threading
 import time
 from datetime import datetime
 from ctypes import *
-import argparse
-
-
-def _capture_arguments():
-    parser = argparse.ArgumentParser(description="Industrial camera capture parameters")
-    parser.add_argument("--output-dir", required=True, help="Directory for captured image sessions")
-    parser.add_argument("--sdk-path", default=os.environ.get("MVS_PYTHON_PATH"),
-                        help="MVS MvImport directory; defaults to MVS_PYTHON_PATH")
-    parser.add_argument("--fps", type=float, default=10, help="Target frames per second")
-    parser.add_argument("--width", type=int, default=2448, help="Resolution width")
-    parser.add_argument("--height", type=int, default=2048, help="Resolution height")
-    parser.add_argument("--exposure-ms", type=float, default=50, help="Manual exposure time (ms)")
-    return parser.parse_args()
-
-
-# Parse before optional GUI/SDK imports so --help and missing-output errors work
-# even on computers without an industrial camera runtime.
-_CAPTURE_ARGS = _capture_arguments() if __name__ == "__main__" else None
-
 import numpy
 import cv2
 from PyQt5.QtWidgets import (QApplication, QMainWindow, QWidget, QVBoxLayout,
                              QHBoxLayout, QPushButton, QLabel, QFrame)
 from PyQt5.QtCore import Qt, QTimer, pyqtSignal, QObject
 from PyQt5.QtGui import QImage, QPixmap
+import argparse
 
-sdk_path = _CAPTURE_ARGS.sdk_path if _CAPTURE_ARGS else os.environ.get("MVS_PYTHON_PATH")
-if not sdk_path or not os.path.isdir(sdk_path):
-    raise RuntimeError("Set --sdk-path or MVS_PYTHON_PATH to the installed MVS MvImport directory")
-sys.path.insert(0, sdk_path)
+# # 兼容不同操作系统加载动态库
+# currentsystem = platform.system()
+# if currentsystem == 'Windows':
+#     sys.path.append(os.path.join(os.getenv('MVCAM_COMMON_RUNENV'), "Samples", "Python", "MvImport"))
+# else:
+#     sys.path.append(os.path.join("..", "..", "MvImport"))
+#
+
+# 根据你的SDK安装位置添加路径
+sdk_path = r"D:\MVS\MVS\Development\Samples\Python\MvImport"
+# 或者
+# sdk_path = r"C:\Program Files\MindVision\Runtime\Samples\Python\MvImport"
+
+if os.path.exists(sdk_path):
+    sys.path.append(sdk_path)
+    # print(f"已添加SDK路径: {sdk_path}")
+else:
+    print(f"错误: 路径不存在 - {sdk_path}")
+    print("请确认SDK是否正确安装")
 
 # 现在再导入模块
 from MvCameraControl_class import *
@@ -127,9 +124,8 @@ class ImageSignal(QObject):
 
 class CameraCaptureGUI(QMainWindow):
 #设置帧率
-    def __init__(self, output_dir):
+    def __init__(self):
         super().__init__()
-        self.output_root = os.path.abspath(os.path.expanduser(os.fspath(output_dir)))
         self.cam = None
         self.deviceList = None
         self.is_grabbing = False
@@ -442,7 +438,7 @@ class CameraCaptureGUI(QMainWindow):
                 # 恢复保存，创建新的保存目录
                 self.start_time = datetime.now()
                 timestamp_str = self.start_time.strftime("%Y%m%d_%H%M%S")
-                self.save_dir = os.path.join(self.output_root, timestamp_str)
+                self.save_dir = timestamp_str
                 os.makedirs(self.save_dir, exist_ok=True)
                 self.frame_count = 0  # 重新开始计数
                 self.is_saving = True
@@ -459,7 +455,7 @@ class CameraCaptureGUI(QMainWindow):
         # 创建保存目录（保存在当前工作目录下）
         self.start_time = datetime.now()
         timestamp_str = self.start_time.strftime("%Y%m%d_%H%M%S")
-        self.save_dir = os.path.join(self.output_root, timestamp_str)
+        self.save_dir = timestamp_str
         os.makedirs(self.save_dir, exist_ok=True)
 
         self.is_grabbing = True
@@ -742,7 +738,13 @@ class CameraCaptureGUI(QMainWindow):
 
 
 if __name__ == "__main__":
-    args = _CAPTURE_ARGS
+    # 支持命令行参数以便在脚本末尾直接修改参数，也可直接编辑下面的默认值
+    parser = argparse.ArgumentParser(description="Camera capture parameters")
+    parser.add_argument("--fps", type=float, default=10, help="Target frames per second")
+    parser.add_argument("--width", type=int, default=2448, help="Resolution width")
+    parser.add_argument("--height", type=int, default=2048, help="Resolution height")
+    parser.add_argument("--exposure-ms", type=float, default=50, help="Manual exposure time (ms)")
+    args = parser.parse_args()
 
     # 可直接在这里修改默认值，或通过命令行覆盖，例如:
     # python camera2.py --fps 25 --width 1280 --height 720 --exposure-ms 40
@@ -751,7 +753,7 @@ if __name__ == "__main__":
     DEFAULT_EXPOSURE_MS = args.exposure_ms
 
     app = QApplication(sys.argv)
-    window = CameraCaptureGUI(args.output_dir)
+    window = CameraCaptureGUI()
     # 应用配置（通过 set_target_fps 以更新 UI 并尝试应用到相机）
     window.set_target_fps(DEFAULT_FPS)
     window.set_camera_resolution(*DEFAULT_RESOLUTION)

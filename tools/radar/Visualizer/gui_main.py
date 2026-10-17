@@ -2,18 +2,6 @@
 
 # Standard Imports
 import sys
-import argparse
-from pathlib import Path
-
-
-def _radar_arguments():
-    parser = argparse.ArgumentParser(description="Radar collection visualizer")
-    parser.add_argument("--output-dir", required=True, help="Directory for radar text and binary captures")
-    return parser.parse_args()
-
-
-_RADAR_ARGS = _radar_arguments() if __name__ == "__main__" else None
-
 import numpy as np
 import time
 import math
@@ -112,11 +100,8 @@ def get_trackColors(n):
 
 
 class Window(QDialog):
-    def __init__(self, parent=None, size=[], output_dir=None):
+    def __init__(self, parent=None, size=[]):
         super(Window, self).__init__(parent)
-        if output_dir is None:
-            raise ValueError("Provide the radar capture output directory")
-        self.output_dir = Path(output_dir).expanduser().resolve()
         # set window toolbar options, and title
         self.setWindowFlags(
             Qt.Window |
@@ -136,7 +121,9 @@ class Window(QDialog):
         print('Python is ', struct.calcsize("P")*8, ' bit')
         print('Python version: ', sys.version_info)
 
-        self.output_dir.mkdir(parents=True, exist_ok=True)
+        # Create data folder if it doesn't exist
+        if not os.path.exists('data'):
+            os.makedirs('data')
 
         # TODO bypass serial read function to also log to a file
 
@@ -1005,7 +992,7 @@ class Window(QDialog):
 
     def connectCom(self):
         #get parser
-        self.parser = uartParser(type=self.configType.currentText(), output_dir=self.output_dir)
+        self.parser = uartParser(type=self.configType.currentText())
         self.parser.frameTime = self.frameTime
         print('Parser type: ',self.configType.currentText())
         #init threads and timers
@@ -1273,7 +1260,7 @@ class Window(QDialog):
 
         # Create filename with timestamp
         timestamp = time.strftime("%Y%m%d_%H%M%S")
-        filename = self.output_dir / f"LRPD_data_{timestamp}.txt"
+        filename = f"data/LRPD_data_{timestamp}.txt"
 
         try:
             self.saveFile = open(filename, 'w')
@@ -1315,7 +1302,7 @@ if __name__ == '__main__':
         app = QApplication(sys.argv)
         screen = app.primaryScreen()
         size = screen.size()
-        main = Window(size=size, output_dir=_RADAR_ARGS.output_dir)
+        main = Window(size=size)
         main.show()
         exit_code = appctxt.app.exec_()
         sys.exit(exit_code)
@@ -1323,6 +1310,6 @@ if __name__ == '__main__':
         app = QApplication(sys.argv)
         screen = app.primaryScreen()
         size = screen.size()
-        main = Window(size=size, output_dir=_RADAR_ARGS.output_dir)
+        main = Window(size=size)
         main.show()
         sys.exit(app.exec_())
