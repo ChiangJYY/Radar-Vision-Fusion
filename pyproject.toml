@@ -1,0 +1,17 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "radar-vision-fusion-core"
+version = "0.1.0"
+description = "ECDR-GAT metric boundary reconstruction and Trans-DKF radar-vision tracking"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = ["numpy>=1.24,<3", "scipy>=1.10", "torch>=2.1"]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+include = ["radar_vision_fusion", "radar_vision_fusion.*"]
+exclude = ["third_party", "third_party.*"]
+namespaces = false

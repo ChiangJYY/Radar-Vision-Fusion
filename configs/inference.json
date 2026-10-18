@@ -1,0 +1,13 @@
+{
+  "mode": "learned",
+  "process_noise": 0.025,
+  "camera_noise": [3.0, 3.0],
+  "radar_noise": [3.0, 3.0, 1.0, 1.0],
+  "camera_gating": 2.0,
+  "radar_gating": 2.0,
+  "temporal_window": 25,
+  "confirm_hits": 2,
+  "region": null,
+  "event_minimum_run": 3,
+  "event_maximum_gap": 0.35
+}

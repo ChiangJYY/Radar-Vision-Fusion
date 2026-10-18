@@ -1,0 +1,11 @@
+# Inference architecture only; no dataset, optimizer, scheduler or training recipe.
+__include__: ['../src/third_party/RT-DETR/rtdetrv2_pytorch/configs/rtdetrv2/include/rtdetrv2_r50vd.yml']
+num_classes: 80
+use_focal_loss: True
+eval_spatial_size: [640, 640]
+PResNet:
+  pretrained: False
+HybridEncoder:
+  expansion: 0.5
+RTDETRTransformerv2:
+  eval_idx: 2
